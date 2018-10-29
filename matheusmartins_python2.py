@@ -6,51 +6,60 @@ class autor:
 		self.ultimo_nome = ultimo_nome
 		self.data_nasc = data_nasc
 
+	@property
 	def nome_como_citado(self):
-		print( self.ultimo_nome.upper() + " " + self.primeiro_nome[0].upper() + ".")
+		return "{} {}.".format(self.ultimo_nome.upper(), self.primeiro_nome[0])
 
 	def __str__(self):
-		return "{primeiro_nome}".format(primeiro_nome=self.primeiro_nome)
+		return "{}".format(self.primeiro_nome)
 
 class livro:
 
-	def __init__(self, titulo, ano, autores):
+	def __init__(self, titulo, ano, autores=[]):
 		self.titulo = titulo
 		self.ano = ano
-		self.autores = []#lista de autores
+		self.autores = autores
 
-	@property	
-	def titulo_vazio(self):
-		if len(self.titulo)==0:
+	@property
+	def titulo(self):
+		return self.__titulo
+
+	@titulo.setter
+	def titulo(self, titulo):
+		if titulo is None:
 			raise ValueError("O titulo nao pode ser vazio")
-
-	def adiciona_autor(self, autor):
-		self.autores.append(autor)
+		self.__titulo = titulo
 
 	def __str__(self):
-		return "{titulo} - {ano} -- {autores}".format(titulo=self.titulo, ano=self.ano, autores=self.autores)
+		autores =  [x.nome_como_citado for x in self.autores]
+		return "{} - {} -- {}".format(self.titulo, self.ano, autores)
 
 class biblioteca:
 
 	def __init__(self, livros):
-		self.livros = [] #lista de livros
+		self.livros = livros
 
-	def adiciona_livro(self, livro):
-		self.livros.append(livro)
+	@property
+	def livros_por_autor(self):
+		dic = {}
+		for livro in self.livros:
+			for autor in livro.autores:
+				if autor.nome_como_citado not in dic:
+					dic[autor.nome_como_citado]=[]
+				dic[autor.nome_como_citado].append(livro.titulo)
+		return dic
 
-	def livros_por_autor():
-		 #utilizará a lista de livros para retornar um dicionário onde cada chave será o nome de um autor e, cada valor, será a lista de livros deste autor.
-		 dic = {}
-		 for livro in self.livros:
-		 	for autor in livro.autores:
-		 		#verifica se ha uma chave para o autor no dicionario, se n tiver cria.
-		 		dic[autor.primeiro_nome]=livro.titulo
-		 return dic
+	def __str__(self):
+		return "\n".join([str(livro) for livro in self.livros])
 
 if __name__ == "__main__":
-	jose = autor("José", "Augusto", "12/03/1978")
-	jose.nome_como_citado()
 
-	pax = livro("PAX", "2015")
+	jose = autor("Jose", "Augusto", "12/03/1978")
+	renato = autor("Renato", "Russo", "13/02/1995")
 
-	print(pax)
+	pax = livro("PAX","2015", [jose])
+	hue = livro("O poder dos seis", "2012", [renato])
+
+	biblioteca = biblioteca([pax, hue])
+	print(biblioteca)
+	print(biblioteca.livros_por_autor)
